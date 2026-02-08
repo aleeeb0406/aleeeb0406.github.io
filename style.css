@@ -1,8 +1,9 @@
-:root {
-    --primary: #2D5F9F;
-    --primary-dark: #1A3D6F;
+<style>
+    :root {
+    --primary: #415066;
+    --primary-dark: #46638f;
     --primary-light: #4A7FC1;
-    --accent: #F2994A;
+    --accent: #403838;
     --text-dark: #1A1A1A;
     --text-light: #F5F5F5;
     --text-gray: #6B6B6B;
@@ -509,13 +510,7 @@ section {
     grid-column: span 2;
 }
 
-.project-image {
-    position: relative;
-    width: 100%;
-    height: 240px;
-    background: linear-gradient(135deg, var(--primary-light), var(--primary));
-    overflow: hidden;
-}
+
 
 .project-placeholder {
     width: 100%;
@@ -830,3 +825,4 @@ section {
         text-align: center;
     }
 }
+</style>
