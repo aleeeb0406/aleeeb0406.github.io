@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Sentiment Analysis - Alejandra Buelna</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+    --primary: #2D5F9F;
+    --primary-dark: #1A3D6F;
+    --primary-light: #4A7FC1;
+    --accent: #F2994A;
+    --text-dark: #1A1A1A;
+    --text-light: #F5F5F5;
+    --text-gray: #6B6B6B;
+    --bg-light: #FFFFFF;
+    --bg-cream: #F8F6F3;
+    --bg-blue-light: #E8F1F8;
+    --border: #E0E0E0;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+    background: var(--bg-light);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* Navigation */
+.nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    font-family: 'Playfair Display', serif;
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+}
+
+.nav-links a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* Project Detail Styles */
+.project-detail {
+    padding: 140px 24px 100px;
+    background: var(--bg-cream);
+}
+
+.project-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 40px;
+    transition: gap 0.3s ease;
+    font-size: 15px;
+}
+
+.back-link:hover {
+    gap: 12px;
+}
+
+.project-header {
+    margin-bottom: 48px;
+}
+
+.project-title-main {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.project-subtitle {
+    font-size: 20px;
+    color: var(--text-gray);
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.project-meta-row {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 24px 0;
+    border-top: 2px solid var(--border);
+    border-bottom: 2px solid var(--border);
+}
+
+.meta-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.meta-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-gray);
+    font-weight: 600;
+}
+
+.meta-value {
+    font-size: 16px;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.project-image-main {
+    margin: 48px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px var(--shadow);
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.project-image-main img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.content-block {
+    margin-bottom: 48px;
+    background: var(--bg-light);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px var(--shadow);
+}
+
+.content-block h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.content-block p {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text-gray);
+    margin-bottom: 16px;
+}
+
+.content-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.content-list li {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text-gray);
+    padding: 12px 0 12px 32px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+}
+
+.content-list li:last-child {
+    border-bottom: none;
+}
+
+.content-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.tech-badge {
+    background: var(--bg-blue-light);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.tech-badge:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--shadow);
+    border-color: var(--primary);
+}
+
+.tech-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.tech-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin: 32px 0;
+}
+
+.result-card {
+    background: var(--bg-blue-light);
+    padding: 32px 24px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--shadow);
+}
+
+.result-number {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: 'Playfair Display', serif;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.result-label {
+    font-size: 15px;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.project-links-bottom {
+    display: flex;
+    gap: 16px;
+    padding-top: 48px;
+    border-top: 2px solid var(--border);
+    margin-top: 48px;
+}
+
+/* Buttons */
+.btn {
+    padding: 14px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--text-light);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px var(--shadow);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background: var(--primary);
+    color: var(--text-light);
+    transform: translateY(-2px);
+}
+
+/* Footer */
+.footer {
+    background: var(--text-dark);
+    color: var(--text-light);
+    padding: 40px 24px;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-text {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-links {
+    display: flex;
+    gap: 24px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--text-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    
+    .project-detail {
+        padding: 120px 24px 80px;
+    }
+    
+    .project-title-main {
+        font-size: 36px;
+    }
+    
+    .project-meta-row {
+        gap: 20px;
+    }
+    
+    .image-placeholder {
+        height: 300px;
+        font-size: 60px;
+    }
+    
+    .content-block {
+        padding: 24px;
+    }
+    
+    .content-block h2 {
+        font-size: 26px;
+    }
+    
+    .tech-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-links-bottom {
+        flex-direction: column;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+}
+        .project-detail {
+            padding: 140px 24px 100px;
+        }
+        
+        .project-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 40px;
+            transition: gap 0.3s ease;
+        }
+        
+        .back-link:hover {
+            gap: 12px;
+        }
+        
+        .project-header {
+            margin-bottom: 48px;
+        }
+        
+        .project-title-main {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .project-subtitle {
+            font-size: 20px;
+            color: var(--text-gray);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .project-meta-row {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            padding: 24px 0;
+            border-top: 2px solid var(--border);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .meta-box {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .meta-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+        
+        .meta-value {
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .project-image-main {
+            margin: 48px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-placeholder {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .project-image-main img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .content-block {
+            margin-bottom: 48px;
+        }
+        
+        .content-block h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+        
+        .content-block p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--text-gray);
+            margin-bottom: 16px;
+        }
+        
+        .content-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .content-list li {
+            font-size: 17px;
+            line-height: 1.6;
+            color: var(--text-gray);
+            padding: 12px 0 12px 32px;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .content-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .content-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 20px;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .tech-badge {
+            background: var(--bg-blue-light);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .tech-badge:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tech-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .tech-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        
+        .result-card {
+            background: var(--bg-blue-light);
+            padding: 32px 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .result-number {
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Playfair Display', serif;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .result-label {
+            font-size: 15px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .project-links-bottom {
+            display: flex;
+            gap: 16px;
+            padding-top: 48px;
+            border-top: 2px solid var(--border);
+            margin-top: 48px;
+        }
+        
+        @media (max-width: 768px) {
+            .project-title-main {
+                font-size: 36px;
+            }
+            
+            .project-meta-row {
+                gap: 20px;
+            }
+            
+            .image-placeholder {
+                height: 300px;
+                font-size: 60px;
+            }
+            
+            .content-block h2 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="AlejandraB.html" class="nav-logo">AB</a>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#skills">Skills</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Project Detail -->
+    <section class="project-detail">
+        <div class="project-container">
+            <a href="AlejandraB.html" class="back-link">← Back </a>
+            
+            <div class="project-header">
+                <h1 class="project-title-main">Amazon Product Review Sentiment Analysis</h1>
+                <p class="project-subtitle">
+                    Web application using Natural Language Processing to classify 5,000+ Amazon product 
+                    reviews with interactive dashboard for real-time sentiment analysis.
+                </p>
+                
+                <div class="project-meta-row">
+                    <div class="meta-box">
+                        <span class="meta-label">Role</span>
+                        <span class="meta-value">Data Analyst</span>
+                    </div>
+                    <div class="meta-box">
+                        <span class="meta-label">Timeline</span>
+                        <span class="meta-value">2025</span>
+                    </div>
+                    <div class="meta-box">
+                        <span class="meta-label">Type</span>
+                        <span class="meta-value">NLP & Machine Learning</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Image -->
+            <div class="project-image-main">
+                    <div class="image-placeholder"><img src="21.png" alt=""></div>
+                     <div class="image-placeholder"><img src="22.png" alt=""></div>
+            </div>
+
+            <!-- Overview -->
+            <div class="content-block">
+                <h2>Overview</h2>
+                <p>
+                    Developed an interactive web application to analyze customer sentiment from Amazon 
+                    product reviews. The tool processes large volumes of text data, classifies sentiment 
+                    (positive, negative, neutral), and presents insights through an intuitive dashboard 
+                    built with Streamlit.
+                </p>
+            </div>
+
+            <!-- Challenge -->
+            <div class="content-block">
+                <h2>The Challenge</h2>
+                <ul class="content-list">
+                    <li>Manually reading thousands of reviews to understand customer perception is impossible</li>
+                    <li>Traditional rating averages don't capture nuanced customer opinions</li>
+                    <li>Need to identify specific pain points and positive aspects mentioned in reviews</li>
+                    <li>Require real-time analysis capability for product teams</li>
+                </ul>
+            </div>
+
+            <!-- Solution -->
+            <div class="content-block">
+                <h2>Solution</h2>
+                <ul class="content-list">
+                    <li>Implemented NLTK for text preprocessing (tokenization, stopword removal, lemmatization)</li>
+                    <li>Built sentiment classification model using NLP techniques</li>
+                    <li>Created interactive Streamlit dashboard with file upload capability</li>
+                    <li>Developed visualization of sentiment distribution and trends</li>
+                    <li>Added word cloud generation for most common positive/negative terms</li>
+                    <li>Enabled filtering by product category and rating</li>
+                </ul>
+            </div>
+
+            <!-- Tech Stack -->
+            <div class="content-block">
+                <h2>Technologies Used</h2>
+                <div class="tech-grid">
+                    <div class="tech-badge">
+                        <div class="tech-name">Python</div>
+                    </div>
+                    <div class="tech-badge">
+                        <div class="tech-name">NLTK</div>
+                    </div>
+                    <div class="tech-badge">
+                        <div class="tech-name">Streamlit</div>
+                    </div>
+                    <div class="tech-badge">
+                        <div class="tech-name">Pandas</div>
+                    </div>
+                    <div class="tech-badge">
+                        <div class="tech-name">Matplotlib</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="content-block">
+                <h2>Results & Impact</h2>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <span class="result-number">5,000+</span>
+                        <span class="result-label">Reviews Analyzed</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-number">92%</span>
+                        <span class="result-label">Classification Accuracy</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-number">Real-time</span>
+                        <span class="result-label">Processing</span>
+                    </div>
+                </div>
+                <p>
+                    The application successfully classified sentiment across thousands of reviews, providing 
+                    actionable insights into customer perception. Product teams could quickly identify common 
+                    complaints and praised features, enabling data-driven product improvements.
+                </p>
+            </div>
+
+            <!-- Links -->
+            <div class="project-links-bottom">
+                <a href="AlejandraB.html" class="btn btn-secondary">← Back </a>
+                              <a href="digital-marketing.html" class="btn btn-primary">View More Projects →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>
